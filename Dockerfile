@@ -1,7 +1,6 @@
 
 FROM node:20-slim
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     git \
@@ -13,7 +12,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm config set allow-git all && npm install
+RUN npm install
 
 # Copy project source
 COPY . .
@@ -25,11 +24,10 @@ ENV NODE_ENV=production
 
 EXPOSE 3000 7860 8080
 
-# Give permissions to existing node user
+# Set permissions
 RUN chown -R node:node /app
 
-# Run as non-root user
 USER node
 
-# Start application
+# Start server
 CMD ["npm", "start"]
