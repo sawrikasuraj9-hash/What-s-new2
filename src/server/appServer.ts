@@ -2762,6 +2762,11 @@ async function startServer() {
     }
   });
 
+  // --- GOOGLE ADSENSE ADS.TXT ENDPOINT ---
+  app.get('/ads.txt', (_req: Request, res: Response) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send('google.com, pub-7061710490259174, DIRECT, f08c47fec0942fa0\n');
+  });
 
   // --- VITE DEV MIDDLEWARE OR PRODUCTION STATIC SERVING ---
   const isProduction = process.env.NODE_ENV === 'production';

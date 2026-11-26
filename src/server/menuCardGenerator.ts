@@ -15,6 +15,7 @@ export interface MenuCardOptions {
   footer?: string;
   theme?: MenuTheme;
   icon?: string;
+  format?: 'gif' | 'png';
 }
 
 const cardCache = new Map<string, Buffer>();
@@ -188,7 +189,8 @@ const THEME_PALETTES: Record<MenuTheme, {
 
 export async function generateMenuCardImage(options: MenuCardOptions): Promise<Buffer> {
   const themeKey = options.theme || 'purple';
-  const cacheKey = `${options.title}_${themeKey}_${options.cards.length}_${options.cards.map(c => c.name).join(',')}`;
+  const format = options.format || 'gif';
+  const cacheKey = `${format}_${options.title}_${themeKey}_${options.cards.length}_${options.cards.map(c => c.name).join(',')}`;
   if (cardCache.has(cacheKey)) {
     return cardCache.get(cacheKey)!;
   }
@@ -317,6 +319,15 @@ export async function generateMenuCardImage(options: MenuCardOptions): Promise<B
     `;
   };
 
+  if (format === 'png') {
+    const pngBuffer = await sharp(Buffer.from(renderMenuSvg(1)))
+      .png({ quality: 92, compressionLevel: 8 })
+      .toBuffer();
+
+    cardCache.set(cacheKey, pngBuffer);
+    return pngBuffer;
+  }
+
   try {
     const rawFrames: Buffer[] = [];
     for (let phase = 0; phase < 3; phase++) {
@@ -344,6 +355,10 @@ export async function generateMenuCardImage(options: MenuCardOptions): Promise<B
     cardCache.set(cacheKey, pngBuffer);
     return pngBuffer;
   }
+}
+
+export async function generateMenuCardPng(options: Omit<MenuCardOptions, 'format'>): Promise<Buffer> {
+  return generateMenuCardImage({ ...options, format: 'png' });
 }
 
 export async function generateWelcomeCardImage(options: {

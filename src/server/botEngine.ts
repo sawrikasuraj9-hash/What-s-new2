@@ -14,7 +14,7 @@ import {
   globalScheduler,
   globalLidMapper
 } from "./zqBaileysHelper";
-import { generateMenuCardImage, generateWelcomeCardImage } from "./menuCardGenerator";
+import { generateMenuCardImage, generateMenuCardPng, generateWelcomeCardImage } from "./menuCardGenerator";
 import {
   sendHtmlApp,
   editHtmlApp,
@@ -81,7 +81,7 @@ import {
   videoToSticker,
   retagStickerExif,
 } from "./stickerService";
-var __defProp=Object.defineProperty;var __name=(target,value)=>__defProp(target,"name",{value,configurable:true});import makeWASocket,{DisconnectReason,useMultiFileAuthState,fetchLatestBaileysVersion,Browsers,makeCacheableSignalKeyStore,downloadMediaMessage,proto,generateWAMessageFromContent,Button,ButtonV2,ButtonV3,Carousel,Poll,AIRich,NativeFlow,parseInteractiveReply}from"@kaels/casileys";import pino from"pino";import QRCode from"qrcode";import fs from"fs";import path from"path";import{askGemini,analyzeAudioWithGemini,transcribeAudioWithGemini,translateAudioWithGemini,analyzeVideoWithGemini,generateCVWithGemini,chatAsYashiHallsAI,ChatMemoryItem}from"./geminiService";import{resolveSongAudio,searchYoutubeVideo,previewSongInfo}from"./audioService";import{resolveSearchImage}from"./imageService";import{adminStore}from"./adminStore";import{getWhatsAppVoiceBuffer}from"./voiceService";import{normalizeWhatsAppNumber}from"../utils/phone";import{resolveMediaFire}from"./mediafireService";import{resolveVideo,extractMediaQualityFlag,previewMediaForCard}from"./videoService";import{searchMovies,formatMovieCard,searchFilmSets,formatFilmSetCard,extractMovieQualityFlag,downloadMovieFileWithFallback,searchAndDownloadSubtitle,fetchPosterAsDataUri,formatBytesSize,cleanupStaleMovieTempFiles}from"./movieService";const BRAND_LOGO_URL="https://i.ibb.co/n2fYpDV/file-000000007c3c8210ae1b96d28b22c655.png";const WHATSAPP_CHANNEL_URL="https://whatsapp.com/channel/0029Vb927N4GJP8MS1yurM2Z";const OWNER_HOTLINE="0740712934";class BotEngine {
+var __defProp=Object.defineProperty;var __name=(target,value)=>__defProp(target,"name",{value,configurable:true});import makeWASocket,{DisconnectReason,useMultiFileAuthState,fetchLatestBaileysVersion,Browsers,makeCacheableSignalKeyStore,downloadMediaMessage,proto,generateWAMessageFromContent,getDevice,Button,ButtonV2,ButtonV3,Carousel,Poll,AIRich,NativeFlow,parseInteractiveReply}from"@kaels/casileys";import pino from"pino";import QRCode from"qrcode";import fs from"fs";import path from"path";import{askGemini,analyzeAudioWithGemini,transcribeAudioWithGemini,translateAudioWithGemini,analyzeVideoWithGemini,generateCVWithGemini,chatAsYashiHallsAI,ChatMemoryItem}from"./geminiService";import{resolveSongAudio,searchYoutubeVideo,previewSongInfo}from"./audioService";import{resolveSearchImage}from"./imageService";import{adminStore}from"./adminStore";import{getWhatsAppVoiceBuffer}from"./voiceService";import{normalizeWhatsAppNumber}from"../utils/phone";import{resolveMediaFire}from"./mediafireService";import{resolveVideo,extractMediaQualityFlag,previewMediaForCard}from"./videoService";import{searchMovies,formatMovieCard,searchFilmSets,formatFilmSetCard,extractMovieQualityFlag,downloadMovieFileWithFallback,searchAndDownloadSubtitle,fetchPosterAsDataUri,formatBytesSize,cleanupStaleMovieTempFiles}from"./movieService";const BRAND_LOGO_URL="https://i.ibb.co/n2fYpDV/file-000000007c3c8210ae1b96d28b22c655.png";const WHATSAPP_CHANNEL_URL="https://whatsapp.com/channel/0029Vb927N4GJP8MS1yurM2Z";const OWNER_HOTLINE="0740712934";class BotEngine {
   sock: any;
   logs: any[];
   maxLogs: number;
@@ -139,8 +139,10 @@ var __defProp=Object.defineProperty;var __name=(target,value)=>__defProp(target,
   businessThumbCache: Map<string, string>;
   pendingFilmChoices: Map<string, { movieTitle: string; query: string; opt1Cmd: string; opt2Cmd: string; onlyDub: boolean; ts: number }>;
   pendingMediaChoices: Map<string, { baseCmd: string; query: string; title?: string; opt1Cmd: string; opt2Cmd: string; ts: number }>;
+  classicMenuUsers: Set<string>;
+  classicMenuContext: Map<string, number>;
 
-  constructor(userId="default"){this.sock=null;this.logs=[];this.maxLogs=500;this.startTime=null;this.reconnectAttempts=0;this.maxReconnectAttempts=20;this.isExplicitlyStopped=true;this.reconnectTimer=null;this.activePairingPhone=null;this.customPairingCodeRequested=null;this.groupWarnings=new Map;this.activeQuizSessions=new Map;this.processedCalls=new Set;this.processedMessageIds=new Set;this.commandCooldowns=new Map;this.rawQrString=null;this.requestedFromJid=null;this.isQrReady=false;this.voiceCooldownMap=new Map;this.chatMemory=new Map;this.welcomedBusinessCustomers=new Set;this.businessChatState=new Map;this.businessThumbCache=new Map;this.pendingFilmChoices=new Map;this.pendingMediaChoices=new Map;void cleanupStaleMovieTempFiles().catch(()=>{});this.start247Watchdog();this.chatAiCooldownMap=new Map;this.smartReplyCooldownMap=new Map;this.lastWelcomeSentTime=0;this.isStarting=false;this.isFreshPairing=false;this.isPairingCodeInFlight=false;
+  constructor(userId="default"){this.sock=null;this.logs=[];this.maxLogs=500;this.startTime=null;this.reconnectAttempts=0;this.maxReconnectAttempts=20;this.isExplicitlyStopped=true;this.reconnectTimer=null;this.activePairingPhone=null;this.customPairingCodeRequested=null;this.groupWarnings=new Map;this.activeQuizSessions=new Map;this.processedCalls=new Set;this.processedMessageIds=new Set;this.commandCooldowns=new Map;this.rawQrString=null;this.requestedFromJid=null;this.isQrReady=false;this.voiceCooldownMap=new Map;this.chatMemory=new Map;this.welcomedBusinessCustomers=new Set;this.businessChatState=new Map;this.businessThumbCache=new Map;this.pendingFilmChoices=new Map;this.pendingMediaChoices=new Map;this.classicMenuUsers=new Set;this.classicMenuContext=new Map;void cleanupStaleMovieTempFiles().catch(()=>{});this.start247Watchdog();this.chatAiCooldownMap=new Map;this.smartReplyCooldownMap=new Map;this.lastWelcomeSentTime=0;this.isStarting=false;this.isFreshPairing=false;this.isPairingCodeInFlight=false;
     this.cachedLogoBuffer = null;
     this.lastCachedLogoUrl = '';
     const initialCandidates = [
@@ -1774,12 +1776,30 @@ Type ".menu" to explore our services.
       rawMsg?.extendedTextMessage?.contextInfo?.quotedMessage
     );
     if (!text.startsWith(prefix)) {
+      const classicTs = this.classicMenuContext.get(jid);
+      const isRecentClassicMenu = Boolean(classicTs && Date.now() - classicTs < 15 * 60 * 1000);
       if (
-        ["menu", "start", "help", "ping", "alive", "owner", "settings", "song", "video", "yt", "ytv", "tiktok", "tt", "fb", "facebook", "ig", "instagram", "twitter", "tw", "twter", "status", "download", "ai", "music", "movies", "games", "group", "admin", "tools", "utility", "premium", "sticker"].includes(firstWord) ||
+        ["menu", "textmenu", "classicmenu", "listmenu", "uimenu", "start", "help", "ping", "alive", "owner", "settings", "song", "video", "yt", "ytv", "tiktok", "tt", "fb", "facebook", "ig", "instagram", "twitter", "tw", "twter", "status", "download", "ai", "music", "movies", "games", "group", "admin", "tools", "utility", "premium", "sticker"].includes(firstWord) ||
         (firstWord === "s" && hasAttachedOrQuotedMedia)
       ) {
         text = `${prefix}${text}`;
-      } else if (/^[1-9]$|^1[0-5]$/.test(firstWord)) {
+      } else if (isRecentClassicMenu && /^(?:\.?([0-9]|10))$/.test(trimmedLowerEarly)) {
+        const cleanNum = trimmedLowerEarly.replace(/^\./, "");
+        const classicNumToCmd: Record<string, string> = {
+          "0": `${prefix}menu`,
+          "1": `${prefix}menu dl`,
+          "2": `${prefix}menu ai`,
+          "3": `${prefix}menu movies`,
+          "4": `${prefix}menu group`,
+          "5": `${prefix}menu games`,
+          "6": `${prefix}menu music`,
+          "7": `${prefix}menu tools`,
+          "8": `${prefix}menu sys`,
+          "9": `${prefix}menu util`,
+          "10": `${prefix}menu search`,
+        };
+        text = classicNumToCmd[cleanNum] || `${prefix}menu`;
+      } else if (/^[1-9]$|^1[0-5]$/.test(trimmedLowerEarly)) {
         const numToCmd: Record<string, string> = {
           "1": `${prefix}download`,
           "2": `${prefix}ai`,
@@ -1797,7 +1817,7 @@ Type ".menu" to explore our services.
           "14": `${prefix}games`,
           "15": `${prefix}math`,
         };
-        text = numToCmd[firstWord] || `${prefix}menu ${firstWord}`;
+        text = numToCmd[trimmedLowerEarly] || `${prefix}menu ${trimmedLowerEarly}`;
       }
     }
 
@@ -2333,9 +2353,57 @@ Type ".menu" to explore our services.
           await this.cmdFollowChannel(jid, msg, sender);
           break;
         case "menu":
-        case "start":
-          await this.cmdMenu(jid, msg, args, isOwner);
+        case "start": {
+          const modeArg = args.trim().toLowerCase();
+          if (modeArg === "text" || modeArg === "classic" || modeArg === "list" || modeArg === "old") {
+            this.classicMenuUsers.add(jid);
+            await this.cmdMenu(jid, msg, "", isOwner, true);
+          } else if (modeArg === "ui" || modeArg === "html") {
+            this.classicMenuUsers.delete(jid);
+            await this.cmdMenu(jid, msg, "", isOwner, false);
+          } else {
+            await this.cmdMenu(jid, msg, args, isOwner);
+          }
           break;
+        }
+        case "textmenu":
+        case "classicmenu":
+        case "listmenu":
+        case "oldmenu":
+        case "imgmenu":
+          this.classicMenuUsers.add(jid);
+          await this.cmdMenu(jid, msg, args, isOwner, true);
+          break;
+        case "uimenu":
+        case "htmlmenu":
+          this.classicMenuUsers.delete(jid);
+          await this.cmdMenu(jid, msg, args, isOwner, false);
+          break;
+        case "ui": {
+          const uiArg = args.trim().toLowerCase();
+          if (uiArg === "off" || uiArg === "classic" || uiArg === "text") {
+            this.classicMenuUsers.add(jid);
+            await this.reply(
+              jid,
+              msg,
+              `✅ *Classic Menu Mode Enabled!*\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nමින් පසු ඔබට UI Card වෙනුවට සෑම විටම *Image + Classic Text Menu* එක ලැබේ.\n(නැවත UI Menu වෙත යාමට *${prefix}ui on* යවන්න)`
+            );
+          } else if (uiArg === "on" || uiArg === "auto") {
+            this.classicMenuUsers.delete(jid);
+            await this.reply(
+              jid,
+              msg,
+              `✅ *Smart Auto UI Menu Mode Enabled!*\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAndroid උපාංග සඳහා Interactive UI Menu එකත්, අනෙකුත් උපාංග සඳහා Classic Menu එකත් ස්වයංක්‍රීයව ලැබේ.`
+            );
+          } else {
+            await this.reply(
+              jid,
+              msg,
+              `ℹ️ *Menu Display Options:*\n• *${prefix}ui off* — Classic Text & Image Menu සක්‍රිය කිරීම\n• *${prefix}ui on* — Smart Auto UI Menu සක්‍රිය කිරීම\n• *${prefix}textmenu* — Classic Menu එක ක්ෂණිකව බැලීම`
+            );
+          }
+          break;
+        }
         case "purplecard":
         case "purplecards":
         case "purplemenu":
@@ -4562,6 +4630,25 @@ ${movie.hasSinhalaSub ? "📝 *Sinhala Subtitles Included*" : ""}
     );
   }
 
+  detectClientDevice(msg: any): "android" | "ios" | "web" | "desktop" | "unknown" {
+    try {
+      const msgId = msg?.key?.id || "";
+      if (!msgId) return "unknown";
+      return getDevice(msgId);
+    } catch {
+      return "unknown";
+    }
+  }
+
+  isUiMenuSupported(msg: any, jid: string, forceClassic = false): boolean {
+    if (forceClassic) return false;
+    if (this.classicMenuUsers.has(jid)) return false;
+    const device = this.detectClientDevice(msg);
+    // In-Chat HTML App cards render natively on official Android WhatsApp clients only.
+    // iOS, Web, Desktop, and unrecognized/third-party IDs automatically receive the Classic Menu.
+    return device === "android";
+  }
+
   async sendCategoryMenuCard(jid: string, msg: any, options: {
     title: string;
     theme?: 'purple' | 'blue' | 'cyan' | 'gold' | 'red' | 'green' | 'pink';
@@ -4569,25 +4656,26 @@ ${movie.hasSinhalaSub ? "📝 *Sinhala Subtitles Included*" : ""}
     cards: Array<{ emoji?: string; name: string; desc: string; capsule: string }>;
     quickButtons?: Array<{ buttonId: string; displayText: string }>;
     copyCodes?: Array<{ displayText: string; copyCode: string }>;
+    forceClassic?: boolean;
   }) {
     const p = this.state.config.prefix || '.';
     const botName = this.state.config.botName || 'YASHI HALLS MINI';
-    const senderNumber = jid.split('@')[0].split(':')[0];
+    const useHtmlUi = this.isUiMenuSupported(msg, jid, Boolean(options.forceClassic));
 
-    // 1. Deliver Android In-Chat HTML App Card (Cyber Purple Glow, 2-column cards, 1-tap copy)
-    const markup = generateCategorySubmenuHtml({
-      title: options.title,
-      cards: options.cards.map((c) => ({
-        name: c.name,
-        desc: c.desc,
-        capsule: c.capsule.startsWith(p) ? c.capsule : `${p}${c.capsule}`,
-      })),
-      botName,
-      prefix: p,
-      height: 560,
-    });
+    // 1. Deliver Android In-Chat HTML App Card ONLY on supported Android clients
+    if (useHtmlUi && this.sock) {
+      const markup = generateCategorySubmenuHtml({
+        title: options.title,
+        cards: options.cards.map((c) => ({
+          name: c.name,
+          desc: c.desc,
+          capsule: c.capsule.startsWith(p) ? c.capsule : `${p}${c.capsule}`,
+        })),
+        botName,
+        prefix: p,
+        height: 560,
+      });
 
-    if (this.sock) {
       try {
         const result = await sendHtmlApp(this.sock, jid, markup, {
           title: `${botName} • ${options.title}`,
@@ -4602,7 +4690,7 @@ ${movie.hasSinhalaSub ? "📝 *Sinhala Subtitles Included*" : ""}
       }
     }
 
-    // Fallback ONLY if HTML app could not be delivered
+    // 2. Classic Fallback (Visual PNG Menu Card + Numbered/Copyable Command List) for iOS / Web / Desktop / .textmenu
     const commandLines = options.cards.map((c, i) => {
       const emoji = c.emoji || options.icon || "⚡";
       const name = c.name;
@@ -4614,23 +4702,54 @@ ${movie.hasSinhalaSub ? "📝 *Sinhala Subtitles Included*" : ""}
     const cleanCaption = `👑 *${botName.toUpperCase()} • ${options.title.toUpperCase()}* 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ *Total Commands:* ${options.cards.length} Commands
-🟢 *Status:* 24/7h Online
+🟢 *Status:* 24/7h Online • 📱 *Universal View*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${commandLines}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 *1-Tap Copy:* ඉහත Card එකේ හෝ ලැයිස්තුවේ ඕනෑම Command එකක් Touch කර Clipboard එකට Copy කරගන්න!
+↩️ *ප්‍රධාන මෙනුවට:* *0* හෝ \`${p}menu\` යවන්න.
+💡 *1-Tap Copy:* ඕනෑම Command එකක් Touch/Hold කර Copy කරගන්න.
 📢 *Official Channel:* ${WHATSAPP_CHANNEL_URL}
 > ⚡ *ＰＯＷＥＲＥＤ  ＢＹ   ＹＡＳＨＩ   ＨＡＬＬＳ*`;
+
+    if (this.sock) {
+      try {
+        const cardPng = await generateMenuCardPng({
+          title: options.title,
+          subtitle: `${botName.toUpperCase()} • ${options.cards.length} COMMANDS`,
+          cards: options.cards.slice(0, 12).map((c) => ({
+            name: c.name,
+            desc: c.desc,
+            capsule: c.capsule.startsWith(p) ? c.capsule : `${p}${c.capsule}`,
+          })),
+          theme: options.theme || 'purple',
+          icon: options.icon || '⚡',
+          footer: `REPLY 0 FOR MAIN MENU • ${botName.toUpperCase()}`,
+        });
+
+        await this.sock.sendMessage(
+          jid,
+          {
+            image: cardPng,
+            caption: cleanCaption,
+          },
+          { quoted: msg }
+        );
+        return;
+      } catch (imgErr: any) {
+        console.warn('[CLASSIC CARD] PNG render notice, using text fallback:', imgErr?.message || imgErr);
+      }
+    }
 
     await this.reply(jid, msg, cleanCaption);
   }
 
-  async sendAiMenuCard(jid: string, msg: any) {
+  async sendAiMenuCard(jid: string, msg: any, forceClassic = false) {
     const p = this.state.config.prefix || '.';
     await this.sendCategoryMenuCard(jid, msg, {
       title: "AI COMMANDS MENU",
-      theme: "gold",
+      theme: "cyan",
       icon: "🤖",
+      forceClassic,
       cards: [
         { emoji: "🤖", name: "AI / Gemini", desc: "GEMINI 2.5 FLASH ULTRA", capsule: `${p}ai <prompt>` },
         { emoji: "🌐", name: "Translate", desc: "SINHALA & MULTILINGUAL AI", capsule: `${p}translate <lang> <text>` },
@@ -4646,12 +4765,13 @@ ${commandLines}
     });
   }
 
-  async sendGroupMenuCard(jid: string, msg: any) {
+  async sendGroupMenuCard(jid: string, msg: any, forceClassic = false) {
     const p = this.state.config.prefix || '.';
     await this.sendCategoryMenuCard(jid, msg, {
       title: "GROUP MANAGEMENT MENU",
-      theme: "gold",
+      theme: "blue",
       icon: "👥",
+      forceClassic,
       cards: [
         { emoji: "ℹ️", name: "GroupInfo", desc: "SECURITY & GROUP STATS", capsule: `${p}groupinfo` },
         { emoji: "👑", name: "Admins", desc: "LIST GROUP ADMINISTRATORS", capsule: `${p}admins` },
@@ -4669,12 +4789,13 @@ ${commandLines}
     });
   }
 
-  async sendDownloadMenuHtmlApp(jid: string, msg: any) {
+  async sendDownloadMenuHtmlApp(jid: string, msg: any, forceClassic = false) {
     const p = this.state.config.prefix || '.';
     await this.sendCategoryMenuCard(jid, msg, {
       title: "DOWNLOAD MENU",
-      theme: "gold",
+      theme: "purple",
       icon: "📥",
+      forceClassic,
       cards: [
         { emoji: "🎵", name: "Song", desc: "HIGH QUALITY MP3 TRACK", capsule: `${p}song <title>` },
         { emoji: "🎬", name: "Video", desc: "1080P HD MP4 VIDEO", capsule: `${p}video <title>` },
@@ -4696,25 +4817,27 @@ ${commandLines}
     return this.cmdMenu(jid, msg);
   }
 
-  async cmdMenu(jid: string, msg: any, categoryArg?: string, isOwnerArg?: boolean) {
+  async cmdMenu(jid: string, msg: any, categoryArg?: string, isOwnerArg?: boolean, forceClassic = false) {
     const sub = (categoryArg || '').trim().toLowerCase();
     const p = this.state.config.prefix || '.';
     const botName = this.state.config.botName || 'YASHI HALLS MINI';
     const plan = (this.state.config.plan || 'MINI').toUpperCase();
     const senderNumber = jid.split('@')[0].split(':')[0];
     const isOwner = isOwnerArg !== undefined ? Boolean(isOwnerArg) : Boolean(msg?.key?.fromMe || senderNumber.includes('0740712934') || senderNumber.includes('94740712934'));
+    const useHtmlUi = this.isUiMenuSupported(msg, jid, forceClassic);
+    const classicModeFlag = !useHtmlUi;
 
-    // Specific Category Submenus via In-Chat Android HTML App Cards
-    if (sub.includes('down') || sub.includes('dl') || sub.includes('song') || sub === '1' || sub === '2') {
-      await this.sendDownloadMenuHtmlApp(jid, msg);
+    // Specific Category Submenus
+    if (sub.includes('down') || sub.includes('dl') || sub === '1' || sub === '2') {
+      await this.sendDownloadMenuHtmlApp(jid, msg, classicModeFlag);
       return;
     }
     if (sub.includes('ai') || sub.includes('gemini') || sub === '10' || sub === '4') {
-      await this.sendAiMenuCard(jid, msg);
+      await this.sendAiMenuCard(jid, msg, classicModeFlag);
       return;
     }
     if (sub.includes('group') || sub.includes('admin') || sub === '5' || sub === '3') {
-      await this.sendGroupMenuCard(jid, msg);
+      await this.sendGroupMenuCard(jid, msg, classicModeFlag);
       return;
     }
     if (sub.includes('movie') || sub.includes('film') || sub === 'filmset' || sub === 'series') {
@@ -4722,15 +4845,17 @@ ${commandLines}
         title: "MOVIES & TV MENU",
         theme: "gold",
         icon: "🎬",
+        forceClassic: classicModeFlag,
         cards: MOVIES_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
     }
-    if (sub.includes('music') || sub === '9') {
+    if (sub.includes('music') || sub === 'song' || sub === '9') {
       await this.sendCategoryMenuCard(jid, msg, {
         title: "MUSIC & AUDIO MENU",
-        theme: "gold",
+        theme: "pink",
         icon: "🎵",
+        forceClassic: classicModeFlag,
         cards: MUSIC_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
@@ -4738,8 +4863,9 @@ ${commandLines}
     if (sub.includes('game') || sub === '6' || sub === 'games') {
       await this.sendCategoryMenuCard(jid, msg, {
         title: "GAMES & FUN MENU",
-        theme: "gold",
+        theme: "green",
         icon: "🎮",
+        forceClassic: classicModeFlag,
         cards: GAMES_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
@@ -4747,17 +4873,19 @@ ${commandLines}
     if (sub.includes('util') || sub.includes('math') || sub === '8') {
       await this.sendCategoryMenuCard(jid, msg, {
         title: "UTILITIES & CONVERTERS MENU",
-        theme: "gold",
+        theme: "cyan",
         icon: "🧮",
+        forceClassic: classicModeFlag,
         cards: UTILITIES_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
     }
-    if (sub.includes('text') || sub === '12') {
+    if (sub.includes('text') || sub.includes('tool') || sub === '12') {
       await this.sendCategoryMenuCard(jid, msg, {
         title: "TEXT TOOLS MENU",
-        theme: "gold",
+        theme: "purple",
         icon: "🛠️",
+        forceClassic: classicModeFlag,
         cards: TEXT_TOOLS_CATALOG.slice(0, 24).map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
@@ -4765,8 +4893,9 @@ ${commandLines}
     if (sub.includes('search') || sub === 'find') {
       await this.sendCategoryMenuCard(jid, msg, {
         title: "SEARCH TOOLS MENU",
-        theme: "gold",
+        theme: "blue",
         icon: "🔎",
+        forceClassic: classicModeFlag,
         cards: SEARCH_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
@@ -4776,23 +4905,24 @@ ${commandLines}
         title: "SYSTEM & BOT CONTROLS",
         theme: "gold",
         icon: "⚙️",
+        forceClassic: classicModeFlag,
         cards: SYSTEM_CATALOG.map(c => ({ name: c.name, desc: c.desc, capsule: c.capsule }))
       });
       return;
     }
 
-    // 1. Deliver Android In-Chat Master Interactive Menu HTML App Card via Ultra-Fast Pre-Built Cache
-    const cachedMenu = getCachedMasterMenuPayload({
-      botName,
-      prefix: p,
-      plan,
-      ownerNumber: this.state.config.ownerNumber || OWNER_HOTLINE,
-      uptime: this.formatUptime(),
-      logoUrl: this.state.config.botLogoUrl || BRAND_LOGO_URL,
-      isOwner,
-    });
+    // 1. Deliver Android In-Chat Master Interactive Menu HTML App Card ONLY on Android UI-capable clients
+    if (useHtmlUi && this.sock) {
+      const cachedMenu = getCachedMasterMenuPayload({
+        botName,
+        prefix: p,
+        plan,
+        ownerNumber: this.state.config.ownerNumber || OWNER_HOTLINE,
+        uptime: this.formatUptime(),
+        logoUrl: this.state.config.botLogoUrl || BRAND_LOGO_URL,
+        isOwner,
+      });
 
-    if (this.sock) {
       try {
         const result = await sendHtmlApp(this.sock, jid, cachedMenu.markup, {
           title: `👑 ${botName} • OFFICIAL MENU 👑`,
@@ -4808,62 +4938,74 @@ ${commandLines}
       }
     }
 
-    // Fallback ONLY if HTML App card could not be delivered
+    // 2. Smart Auto-Detect Classic Fallback (Image Banner + Numbered Category Menu) for iOS / Web / Desktop / .textmenu
+    const detectedDevice = this.detectClientDevice(msg);
+    this.classicMenuContext.set(jid, Date.now());
+    this.addLog("INFO", `📱 [CLASSIC MENU] Delivering Universal Menu (${detectedDevice}) to ${senderNumber}`);
+
     const masterMenu = `👑 *${botName.toUpperCase()} • OFFICIAL MASTER MENU* 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ *Response Speed:* 0.042s (Instant Delivery)
-🟢 *Status:* 24/7h Online • 👑 *Plan:* ${plan} (Unlimited)
-📱 *Prefix:* [ ${p} ] • 🇱🇰 *Language:* Sinhala / English
+⚡ *Uptime:* ${this.formatUptime()} • 👑 *Plan:* ${plan}
+📱 *Device Mode:* ${detectedDevice.toUpperCase()} (Universal View)
+⌨️ *Prefix:* [ ${p} ] • 🇱🇰 *Language:* Sinhala / English
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📂 *QUICK CATEGORIES (කැටගරි අංකය යවන්න):*
+📂 *CATEGORIES (අදාළ අංකය පමණක් Reply කරන්න):*
 
-📥 *[1] DOWNLOADS & MEDIA:*
-   • \`${p}song <name>\`  (MP3 සින්දු බාගත කරන්න)
-   • \`${p}video <name>\` (වීඩියෝ සහ තොරතුරු)
-   • \`${p}tiktok <url>\` (HD TikTok No Watermark)
-   • \`${p}fb <url>\`     (Facebook HD Video)
-   • \`${p}mediafire <url>\` (MediaFire 2GB Direct)
-   • \`${p}apk <name>\`   (Android APK Apps)
-   • \`${p}lyrics <song>\`(සින්දු පද රචනා)
-
-🤖 *[2] AI INTELLIGENCE:*
-   • \`${p}ai <ප්‍රශ්නය>\` (YASHI HALLS AI Chat)
-   • \`${p}translate <text>\` (භාෂා පරිවර්තනය)
-   • \`${p}summarize <text>\` (කෙටි සාරාංශය)
-   • \`${p}write <topic>\`    (ලිපි/රචනා ලිවීම)
-   • \`${p}code <prompt>\`    (Programming Code)
-
-🎬 *[3] CINEMA & MOVIES:*
-   • \`${p}film <name>\`    (චිත්‍රපට කෙලින්ම WhatsApp වෙත Download)
-   • \`${p}sub <name>\`     (සිංහල Subtitle .SRT ගොනුව)
-
-👥 *[4] GROUP ADMIN:*
-   • \`${p}tagall <msg>\`   (සියලු සාමාජිකයින් Tag)
-   • \`${p}admins\`         (Admin ලැයිස්තුව)
-   • \`${p}kick <@user>\`   (සාමාජිකයින් ඉවත් කිරීම)
-   • \`${p}add <phone>\`    (සාමාජිකයින් එක් කිරීම)
-   • \`${p}mute / ${p}unmute\` (ගෲප් පාලනය)
-   • \`${p}antilink on/off\`(ලින්ක් වැළැක්වීම)
-
-🎮 *[5] GAMES & ENTERTAINMENT:*
-   • \`${p}quiz\`           (Trivia Quiz ප්‍රශ්න)
-   • \`${p}roll\`           (දාදු කැටය පෙරළීම)
-   • \`${p}flip\`           (කාසිය පෙරළීම)
-   • \`${p}slot\`           (Slot Machine ක්‍රීඩාව)
-   • \`${p}guess <1-10>\`   (අංක අනුමාන කිරීම)
-
-⚙️ *[6] SYSTEM & BOT CONTROLS:*
-   • \`${p}ping\`           (Speed / Latency Check)
-   • \`${p}alive\`          (Bot Status & Uptime)
-   • \`${p}owner\`          (Bot Owner තොරතුරු)
-   • \`${p}mode public\`    (Public/Private මාදිලිය)
-   • \`${p}prefix <char>\`  (නව Prefix සැකසීම)
-   • \`${p}autochat on/off\`(Smart AI Auto-Reply)
+  *1.* 📥 *Downloads & Media*   (\`${p}song\`, \`${p}video\`, \`${p}tt\`, \`${p}fb\`)
+  *2.* 🤖 *AI Intelligence*     (\`${p}ai\`, \`${p}imagine\`, \`${p}translate\`)
+  *3.* 🎬 *Cinema & Movies*     (\`${p}film\`, \`${p}sub\`, \`${p}cineru\`)
+  *4.* 👥 *Group Admin*         (\`${p}tagall\`, \`${p}kick\`, \`${p}antilink\`)
+  *5.* 🎮 *Games & Fun*         (\`${p}quiz\`, \`${p}roll\`, \`${p}slot\`, \`${p}ttt\`)
+  *6.* 🎵 *Music & Audio*       (\`${p}play\`, \`${p}lyrics\`, \`${p}shazam\`)
+  *7.* 🛠️ *Text & Tool Box*     (\`${p}sticker\`, \`${p}ocr\`, \`${p}qr\`)
+  *8.* ⚙️ *System & Controls*   (\`${p}ping\`, \`${p}alive\`, \`${p}owner\`)
+  *9.* 🧮 *Utilities & Math*    (\`${p}calc\`, \`${p}weather\`, \`${p}currency\`)
+ *10.* 🔎 *Search Tools*        (\`${p}ytsearch\`, \`${p}img\`, \`${p}wiki\`)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 *ක්ලික් කළ හැකි අංක:* අදාළ අංකය පමණක් චැට් එකට යැවීමෙන්ද ඕනෑම කැටගරියක් විවෘත වේ (උදා: *1*, *2*, *3*, *4*, *5*, *6*).
+⚡ *Quick Commands (කෙලින්ම භාවිතයට):*
+• \`${p}song <නම>\` — MP3 සින්දු බාගත කිරීම
+• \`${p}film <නම>\` — සිංහල Sub සමඟ චිත්‍රපට
+• \`${p}ai <ප්‍රශ්නය>\` — YASHI AI සහායක
+
+💡 *Reply Tip:* *1* සිට *10* දක්වා අංකයක් යවා එම කොටසේ සියලු විධාන බලන්න.
+_(Android UI Menu සඳහා \`${p}ui on\` යවන්න)_
 📢 *Official Channel:* ${WHATSAPP_CHANNEL_URL}
 > ⚡ *ＰＯＷＥＲＥＤ  ＢＹ   ＹＡＳＨＩ   ＨＡＬＬＳ*`;
+
+    if (this.sock) {
+      try {
+        const masterBannerPng = await generateMenuCardPng({
+          title: `${botName.toUpperCase()} MENU`,
+          subtitle: `REPLY 1 - 10 TO OPEN ANY CATEGORY`,
+          theme: 'purple',
+          icon: '👑',
+          footer: `UNIVERSAL CLASSIC MENU • YASHI HALLS`,
+          cards: [
+            { name: "1. DOWNLOADS", desc: "SONG, VIDEO, TIKTOK, FB, APK", capsule: `${p}menu dl` },
+            { name: "2. AI SMART", desc: "GEMINI AI, IMAGINE, TRANSLATE", capsule: `${p}menu ai` },
+            { name: "3. MOVIES & TV", desc: "SINHALA SUB & DUBBED FILMS", capsule: `${p}menu movies` },
+            { name: "4. GROUP ADMIN", desc: "TAGALL, KICK, MUTE, ANTILINK", capsule: `${p}menu group` },
+            { name: "5. GAMES & FUN", desc: "QUIZ, SLOT, ROLL, TICTACTOE", capsule: `${p}menu games` },
+            { name: "6. MUSIC AUDIO", desc: "PLAY, LYRICS, SHAZAM, AUDIO", capsule: `${p}menu music` },
+            { name: "7. TEXT TOOLS", desc: "STICKER, OCR, QR & FONTS", capsule: `${p}menu tools` },
+            { name: "8. SYSTEM BOT", desc: "PING, ALIVE, OWNER, SETTINGS", capsule: `${p}menu sys` },
+          ],
+        });
+
+        await this.sock.sendMessage(
+          jid,
+          {
+            image: masterBannerPng,
+            caption: masterMenu,
+          },
+          { quoted: msg }
+        );
+        return;
+      } catch (err: any) {
+        console.warn('[CLASSIC MASTER MENU] Image send notice:', err?.message || err);
+      }
+    }
 
     await this.reply(jid, msg, masterMenu);
   }
@@ -4883,20 +5025,20 @@ ${commandLines}
     }
 
     const cfg = this.state.config;
-    const markup = generateSettingsCardHtml({
-      botName: cfg.botName || 'YASHI HALLS',
-      prefix: cfg.prefix || '.',
-      mode: cfg.mode || 'public',
-      smartAutoReply: cfg.smartAutoReply !== false,
-      voiceAutoReply: cfg.voiceAutoReplyEnabled === true,
-      antiLink: cfg.antiLink === true,
-      channelAutoReact: cfg.channelAutoReact === true,
-      autoReadStatus: cfg.autoReadStatus === true,
-      ownerNumber: cfg.ownerNumber || '94740712934',
-      height: 480,
-    });
+    if (this.isUiMenuSupported(msg, jid) && this.sock) {
+      const markup = generateSettingsCardHtml({
+        botName: cfg.botName || 'YASHI HALLS',
+        prefix: cfg.prefix || '.',
+        mode: cfg.mode || 'public',
+        smartAutoReply: cfg.smartAutoReply !== false,
+        voiceAutoReply: cfg.voiceAutoReplyEnabled === true,
+        antiLink: cfg.antiLink === true,
+        channelAutoReact: cfg.channelAutoReact === true,
+        autoReadStatus: cfg.autoReadStatus === true,
+        ownerNumber: cfg.ownerNumber || '94740712934',
+        height: 480,
+      });
 
-    if (this.sock) {
       try {
         const result = await sendHtmlApp(this.sock, jid, markup, {
           title: `⚙️ ${cfg.botName || 'YASHI HALLS'} • SETTINGS ⚙️`,
@@ -4911,7 +5053,7 @@ ${commandLines}
       }
     }
 
-    // Fallback if HTML App card cannot render
+    // Universal text panel for iOS / Web / Desktop / Classic Mode
     const p = cfg.prefix || '.';
     await this.reply(
       jid,
@@ -5972,9 +6114,9 @@ _POWERED BY YASHI HALLS 24/7 CLOUD ENGINE_ ⚡`.trim();
     // Non-blocking lightning speed indicator (dispatched in background for sub-second card delivery)
     this.sock?.sendMessage(jid, { react: { text: "⚡", key: msg.key } }).catch(() => {});
 
-    // Deliver compact Cyberpunk HUD card
+    // Deliver compact Cyberpunk HUD card ONLY on supported Android UI clients
     let sentCard = false;
-    if (this.sock) {
+    if (this.isUiMenuSupported(msg, jid) && this.sock) {
       try {
         const pingMarkup = generatePingCardHtml({
           botName: cleanBotName,
